@@ -94,7 +94,7 @@ class Storage extends Wrapper {
 		if ($sourceStorage->instanceOfStorage('\OCA\Files_Sharing\ISharedStorage')) {
 			// make a trashed backup copy for the owner
 			$ownerPath = $sourceStorage->getSourcePath($sourceInternalPath);
-			$owner = $sourceStorage->getOwner();
+			$owner = $sourceStorage->getOwner($sourceInternalPath);
 			\OCA\Files_Trashbin\Trashbin::copyFilesToUser($ownerPath, $owner, $ownerPath, $owner, time(), true);
 		}
 
