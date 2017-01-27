@@ -164,24 +164,28 @@ class Trashbin {
 	/**
 	 * copy file to owners trash
 	 *
-	 * @param string $sourcePath
-	 * @param string $owner
-	 * @param string $targetPath
-	 * @param $user
-	 * @param integer $timestamp
+	 * @param string $sourcePath source path relative to the owner's home
+	 * @param string $owner owner user id
+	 * @param string $targetPath target path relative to the recipient's home
+	 * @param string $user recipient user id
+	 * @param integer $timestamp deletion timestamp
+	 * @param bool $fromHome true to copy the files from the owner's home instead of trashbin
 	 */
-	private static function copyFilesToUser($sourcePath, $owner, $targetPath, $user, $timestamp) {
+	public static function copyFilesToUser($sourcePath, $owner, $targetPath, $user, $timestamp, $fromHome = false) {
 		self::setUpTrash($owner);
 
 		$targetFilename = basename($targetPath);
 		$targetLocation = dirname($targetPath);
 
-		$sourceFilename = basename($sourcePath);
-
 		$view = new View('/');
 
 		$target = $user . '/files_trashbin/files/' . $targetFilename . '.d' . $timestamp;
-		$source = $owner . '/files_trashbin/files/' . $sourceFilename . '.d' . $timestamp;
+		if ($fromHome) {
+			$source = $owner . '/' . ltrim($sourcePath, '/');
+		} else {
+			$sourceFilename = basename($sourcePath);
+			$source = $owner . '/files_trashbin/files/' . $sourceFilename . '.d' . $timestamp;
+		}
 		self::copy_recursive($source, $target, $view);
 
 

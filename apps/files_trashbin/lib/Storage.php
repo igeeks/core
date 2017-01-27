@@ -85,6 +85,23 @@ class Storage extends Wrapper {
 	}
 
 	/**
+	 * @param \OCP\Files\Storage $sourceStorage
+	 * @param string $sourceInternalPath
+	 * @param string $targetInternalPath
+	 * @return bool
+	 */
+	public function moveFromStorage(\OCP\Files\Storage $sourceStorage, $sourceInternalPath, $targetInternalPath) {
+		if ($sourceStorage->instanceOfStorage('\OCA\Files_Sharing\ISharedStorage')) {
+			// make a trashed backup copy for the owner
+			$ownerPath = $sourceStorage->getSourcePath($sourceInternalPath);
+			$owner = $sourceStorage->getOwner();
+			\OCA\Files_Trashbin\Trashbin::copyFilesToUser($ownerPath, $owner, $ownerPath, $owner, time(), true);
+		}
+
+		return $this->getWrapperStorage()->moveFromStorage($sourceStorage, $sourceInternalPath, $targetInternalPath);
+	}
+
+	/**
 	 * Deletes the given file by moving it into the trashbin.
 	 *
 	 * @param string $path path of file or folder to delete
