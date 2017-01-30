@@ -59,6 +59,27 @@ class Storage extends Wrapper {
 		// in cross-storage cases, a rename is a copy + unlink,
 		// that last unlink must not go to trash
 		self::$disableTrash = true;
+
+		$path1 = $params[Filesystem::signal_param_oldpath];
+		$path2 = $params[Filesystem::signal_param_newpath];
+
+		$view = Filesystem::getView();
+		$absolutePath1 = Filesystem::normalizePath($view->getAbsolutePath($path1));
+
+		$mount1 = $view->getMount($path1);
+		$mount2 = $view->getMount($path2);
+		$sourceStorage = $mount1->getStorage();
+		$targetStorage = $mount2->getStorage();
+		$sourceInternalPath = $mount1->getInternalPath($absolutePath1);
+		// check whether this is a cross-storage move
+		if ($sourceInternalPath !== '' && $sourceStorage !== $targetStorage && $sourceStorage->instanceOfStorage('OCA\Files_Sharing\ISharedStorage')) {
+			$ownerPath = $sourceStorage->getSourcePath($sourceInternalPath);
+			$owner = $sourceStorage->getOwner($sourceInternalPath);
+			if ($owner !== null && $owner !== '') {
+				// make a backup copy for the owner
+				\OCA\Files_Trashbin\Trashbin::copyBackupForOwner($ownerPath, $owner, time());
+			}
+		}
 	}
 
 	/**
@@ -82,23 +103,6 @@ class Storage extends Wrapper {
 			self::$disableTrash = false;
 		}
 		return $result;
-	}
-
-	/**
-	 * @param \OCP\Files\Storage $sourceStorage
-	 * @param string $sourceInternalPath
-	 * @param string $targetInternalPath
-	 * @return bool
-	 */
-	public function moveFromStorage(\OCP\Files\Storage $sourceStorage, $sourceInternalPath, $targetInternalPath) {
-		if ($sourceStorage->instanceOfStorage('\OCA\Files_Sharing\ISharedStorage')) {
-			// make a trashed backup copy for the owner
-			$ownerPath = $sourceStorage->getSourcePath($sourceInternalPath);
-			$owner = $sourceStorage->getOwner($sourceInternalPath);
-			\OCA\Files_Trashbin\Trashbin::copyFilesToUser($ownerPath, $owner, $ownerPath, $owner, time(), true);
-		}
-
-		return $this->getWrapperStorage()->moveFromStorage($sourceStorage, $sourceInternalPath, $targetInternalPath);
 	}
 
 	/**

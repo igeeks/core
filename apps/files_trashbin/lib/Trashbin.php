@@ -164,37 +164,59 @@ class Trashbin {
 	/**
 	 * copy file to owners trash
 	 *
-	 * @param string $sourcePath source path relative to the owner's home
-	 * @param string $owner owner user id
-	 * @param string $targetPath target path relative to the recipient's home
-	 * @param string $user recipient user id
-	 * @param integer $timestamp deletion timestamp
-	 * @param bool $fromHome true to copy the files from the owner's home instead of trashbin
+	 * @param string $sourcePath
+	 * @param string $owner
+	 * @param string $targetPath
+	 * @param $user
+	 * @param integer $timestamp
 	 */
-	public static function copyFilesToUser($sourcePath, $owner, $targetPath, $user, $timestamp, $fromHome = false) {
+	private static function copyFilesToUser($sourcePath, $owner, $targetPath, $user, $timestamp) {
 		self::setUpTrash($owner);
 
 		$targetFilename = basename($targetPath);
 		$targetLocation = dirname($targetPath);
 
+		$sourceFilename = basename($sourcePath);
+
 		$view = new View('/');
 
 		$target = $user . '/files_trashbin/files/' . $targetFilename . '.d' . $timestamp;
-		if ($fromHome) {
-			$source = $owner . '/' . ltrim($sourcePath, '/');
-		} else {
-			$sourceFilename = basename($sourcePath);
-			$source = $owner . '/files_trashbin/files/' . $sourceFilename . '.d' . $timestamp;
-		}
+		$source = $owner . '/files_trashbin/files/' . $sourceFilename . '.d' . $timestamp;
 		self::copy_recursive($source, $target, $view);
 
 
+	/**
+	 * Make a backup of a file into the trashbin for the owner
+	 *
+	 * @param string $ownerPath path relative to the owner's "files" folder
+	 * @param string $owner user id of the owner
+	 * @param int $timestamp deletion timestamp
+	 */
+	public static function copyBackupForOwner($ownerPath, $owner, $timestamp) {
+		self::setUpTrash($owner);
+
+		$targetFilename = basename($ownerPath);
+		$targetLocation = dirname($ownerPath);
+		$source = $owner . '/files/' . ltrim($ownerPath, '/');
+		$target = $owner . '/files_trashbin/files/' . $targetFilename . '.d' . $timestamp;
+		self::copy_recursive($source, $target, $view);
+
+		self::retainVersions($targetFilename, $owner, $ownerPath, $timestamp, true);
+
+		$view = new View('/');
 		if ($view->file_exists($target)) {
-			$query = \OC_DB::prepare("INSERT INTO `*PREFIX*files_trash` (`id`,`timestamp`,`location`,`user`) VALUES (?,?,?,?)");
-			$result = $query->execute([$targetFilename, $timestamp, $targetLocation, $user]);
-			if (!$result) {
-				\OCP\Util::writeLog('files_trashbin', 'trash bin database couldn\'t be updated for the files owner', \OCP\Util::ERROR);
-			}
+			self::insertTrashEntry($user, $targetFilename, $targetLocation, $timestamp);
+		}
+	}
+
+	/**
+	 *
+	 */
+	public static function insertTrashEntry($user, $targetFilename, $targetLocation, $timestamp) {
+		$query = \OC_DB::prepare("INSERT INTO `*PREFIX*files_trash` (`id`,`timestamp`,`location`,`user`) VALUES (?,?,?,?)");
+		$result = $query->execute([$targetFilename, $timestamp, $targetLocation, $user]);
+		if (!$result) {
+			\OCP\Util::writeLog('files_trashbin', 'trash bin database couldn\'t be updated for the files owner', \OCP\Util::ERROR);
 		}
 	}
 
@@ -235,7 +257,6 @@ class Trashbin {
 		$location = $path_parts['dirname'];
 		$timestamp = time();
 
-		// disable proxy to prevent recursive calls
 		$trashPath = '/files_trashbin/files/' . $filename . '.d' . $timestamp;
 
 		/** @var \OC\Files\Storage\Storage $trashStorage */
@@ -297,18 +318,21 @@ class Trashbin {
 	 * @param string $owner owner user id
 	 * @param string $ownerPath path relative to the owner's home storage
 	 * @param integer $timestamp when the file was deleted
+	 * @param bool $forceCopy true to only make a copy of the versions into the trashbin
 	 */
-	private static function retainVersions($filename, $owner, $ownerPath, $timestamp) {
+	private static function retainVersions($filename, $owner, $ownerPath, $timestamp, $forceCopy = false) {
 		if (\OCP\App::isEnabled('files_versions') && !empty($ownerPath)) {
 
 			$user = User::getUser();
 			$rootView = new View('/');
 
 			if ($rootView->is_dir($owner . '/files_versions/' . $ownerPath)) {
-				if ($owner !== $user) {
+				if ($owner !== $user || $forceCopy) {
 					self::copy_recursive($owner . '/files_versions/' . $ownerPath, $owner . '/files_trashbin/versions/' . basename($ownerPath) . '.d' . $timestamp, $rootView);
 				}
-				self::move($rootView, $owner . '/files_versions/' . $ownerPath, $user . '/files_trashbin/versions/' . $filename . '.d' . $timestamp);
+				if (!$forceCopy) {
+					self::move($rootView, $owner . '/files_versions/' . $ownerPath, $user . '/files_trashbin/versions/' . $filename . '.d' . $timestamp);
+				}
 			} else if ($versions = \OCA\Files_Versions\Storage::getVersions($owner, $ownerPath)) {
 
 				foreach ($versions as $v) {
