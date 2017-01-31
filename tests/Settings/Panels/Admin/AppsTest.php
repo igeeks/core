@@ -11,6 +11,7 @@
 namespace Tests\Settings\Panels\Admin;
 
 use OC\Settings\Panels\Admin\Apps;
+use OCP\IConfig;
 
 /**
  * @package Tests\Settings\Panels\Admin
@@ -24,7 +25,7 @@ class AppsTest extends \Test\TestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$this->config = $this->getMockBuilder('\OCP\IConfig')->getMock();
+		$this->config = $this->getMockBuilder(IConfig::class)->getMock();
 		$this->panel = new Apps($this->config);
 	}
 

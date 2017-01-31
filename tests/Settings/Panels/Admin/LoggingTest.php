@@ -11,6 +11,9 @@
 namespace Tests\Settings\Panels\Admin;
 
 use OC\Settings\Panels\Admin\Logging;
+use OC\Settings\Panels\Helper;
+use OCP\IConfig;
+use OCP\IURLGenerator;
 
 /**
  * @package Tests\Settings\Panels\Admin
@@ -28,9 +31,9 @@ class LoggingTest extends \Test\TestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$this->urlGenerator = $this->getMockBuilder('\OCP\IURLGenerator')->getMock();
-		$this->config = $this->getMockBuilder('\OCP\IConfig')->getMock();
-		$this->helper = $this->getMockBuilder('\OC\Settings\Panels\Helper')->getMock();
+		$this->urlGenerator = $this->getMockBuilder(IURLGenerator::class)->getMock();
+		$this->config = $this->getMockBuilder(IConfig::class)->getMock();
+		$this->helper = $this->getMockBuilder(Helper::class)->getMock();
 		$this->panel = new Logging($this->config, $this->urlGenerator, $this->helper);
 	}
 

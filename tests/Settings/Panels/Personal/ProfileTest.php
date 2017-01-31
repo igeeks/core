@@ -10,7 +10,11 @@
 
 namespace Tests\Settings\Panels\Personal;
 
+use OC\Settings\Panels\Helper;
 use OC\Settings\Panels\Personal\Profile;
+use OCP\IConfig;
+use OCP\IGroupManager;
+use OCP\IUserSession;
 use OCP\L10N\IFactory;
 use OCP\IUser;
 
@@ -34,11 +38,11 @@ class ProfileTest extends \Test\TestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$this->config = $this->getMockBuilder('\OCP\IConfig')->getMock();
-		$this->helper = $this->getMockBuilder('\OC\Settings\Panels\Helper')->getMock();
-		$this->groupManager = $this->getMockBuilder('\OCP\IGroupManager')->getMock();
+		$this->config = $this->getMockBuilder(IConfig::class)->getMock();
+		$this->helper = $this->getMockBuilder(Helper::class)->getMock();
+		$this->groupManager = $this->getMockBuilder(IGroupManager::class)->getMock();
 		$this->lfactory = $this->createMock(IFactory::class);
-		$this->userSession = $this->getMockBuilder('\OCP\IUserSession')->getMock();
+		$this->userSession = $this->getMockBuilder(IUserSession::class)->getMock();
 		$this->panel = new Profile(
 			$this->config,
 			$this->groupManager,

@@ -11,6 +11,10 @@
 namespace Tests\Settings\Panels\Admin;
 
 use OC\Settings\Panels\Admin\Certificates;
+use OCP\ICertificate;
+use OCP\ICertificateManager;
+use OCP\IConfig;
+use OCP\IURLGenerator;
 
 /**
  * @package Tests\Settings\Panels\Admin
@@ -28,9 +32,9 @@ class CertificatesTest extends \Test\TestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$this->urlGenerator =$this->getMockBuilder('\OCP\IURLGenerator')->getMock();
-		$this->config = $this->getMockBuilder('\OCP\IConfig')->getMock();
-		$this->certManager = $this->getMockBuilder('\OCP\ICertificateManager')->getMock();
+		$this->urlGenerator =$this->getMockBuilder(IURLGenerator::class)->getMock();
+		$this->config = $this->getMockBuilder(IConfig::class)->getMock();
+		$this->certManager = $this->getMockBuilder(ICertificateManager::class)->getMock();
 		$this->panel = new Certificates($this->config, $this->urlGenerator, $this->certManager);
 	}
 
@@ -50,7 +54,7 @@ class CertificatesTest extends \Test\TestCase {
 			->method('getSystemValue')
 			->with('enable_certificate_management')
 			->willReturn(true);
-		$mockCert = $this->getMockBuilder('\OCP\ICertificate')->getMock();
+		$mockCert = $this->getMockBuilder(ICertificate::class)->getMock();
 		$mockCert->expects($this->once())->method('isExpired')->willReturn(false);
 		$mockCert->expects($this->once())->method('getCommonName')->willReturn('commonname');
 		$mockCert->expects($this->exactly(2))->method('getExpireDate')->willReturn(time()+60*60*24*10);

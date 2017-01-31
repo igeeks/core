@@ -10,6 +10,7 @@
 
 namespace Tests\Settings\Panels\Personal;
 
+use OC\Settings\Panels\Helper;
 use OC\Settings\Panels\Personal\Legacy;
 
 /**
@@ -25,7 +26,7 @@ class LegacyTest extends \Test\TestCase {
 
 	public function setUp() {
 		parent::setUp();
-        $this->helper = $this->getMockBuilder('\OC\Settings\Panels\Helper')->getMock();
+        $this->helper = $this->getMockBuilder(Helper::class)->getMock();
 		$this->panel = new Legacy($this->helper);
 	}
 

@@ -11,6 +11,7 @@
 namespace Tests\Settings\Panels\Admin;
 
 use OC\Settings\Panels\Admin\Legacy;
+use OC\Settings\Panels\Helper;
 
 /**
  * @package Tests\Settings\Panels\Admin
@@ -24,7 +25,7 @@ class LegacyTest extends \Test\TestCase {
 
 	public function setUp() {
 		parent::setUp();
-        $this->helper = $this->getMockBuilder('\OC\Settings\Panels\Helper')->getMock();
+        $this->helper = $this->getMockBuilder(Helper::class)->getMock();
 		$this->panel = new Legacy($this->helper);
 	}
 

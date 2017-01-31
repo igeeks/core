@@ -10,6 +10,8 @@
 
 namespace OCA\Files_External\Tests\Panels;
 
+use OC\Encryption\Manager;
+use OC\Settings\Panels\Helper;
 use OCA\Files_External\Panels\Personal;
 use OCP\Files\External\IStoragesBackendService;
 use OCP\Files\External\Service\IGlobalStoragesService;
@@ -37,8 +39,8 @@ class PersonalTest extends \Test\TestCase {
 		$this->backendService = $this->createMock(IStoragesBackendService::class);
 		$this->storagesService = $this->createMock(IUserStoragesService::class);
 		$this->encManager = $this->getMockBuilder(
-			'\OC\Encryption\Manager')->disableOriginalConstructor()->getMock();
-		$this->helper = $this->getMockBuilder('\OC\Settings\Panels\Helper')->getMock();
+			Manager::class)->disableOriginalConstructor()->getMock();
+		$this->helper = $this->getMockBuilder(Helper::class)->getMock();
 		$this->panel = new Personal(
 			$this->backendService,
 			$this->storagesService,

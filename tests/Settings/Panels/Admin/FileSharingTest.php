@@ -11,6 +11,8 @@
 namespace Tests\Settings\Panels\Admin;
 
 use OC\Settings\Panels\Admin\FileSharing;
+use OC\Settings\Panels\Helper;
+use OCP\IConfig;
 
 /**
  * @package Tests\Settings\Panels\Admin
@@ -26,8 +28,8 @@ class FileSharingTest extends \Test\TestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$this->config = $this->getMockBuilder('\OCP\IConfig')->getMock();
-		$this->helper = $this->getMockBuilder('\OC\Settings\Panels\Helper')->getMock();
+		$this->config = $this->getMockBuilder(IConfig::class)->getMock();
+		$this->helper = $this->getMockBuilder(Helper::class)->getMock();
 		$this->panel = new FileSharing($this->config, $this->helper);
 	}
 
