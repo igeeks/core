@@ -28,8 +28,11 @@ use OCP\Defaults;
 
 class Clients implements ISettings {
 
-    /** @var OCP\IConfig */
+    /** @var IConfig */
     protected $config;
+
+    /** @var Defaults  */
+    protected $defaults;
 
     public function __construct(IConfig $config, Defaults $defaults) {
         $this->config = $config;

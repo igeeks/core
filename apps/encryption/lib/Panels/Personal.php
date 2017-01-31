@@ -77,17 +77,7 @@ class Personal implements ISettings {
 					$this->config,
 					$this->userManager);
 
-		$keyManager = new \OCA\Encryption\KeyManager(
-				$this->encKeyStorage,
-				$crypt,
-				$this->config,
-				$this->userSession,
-				$session,
-				$this->logger,
-				$util);
-
 		$user = $this->userSession->getUser()->getUID();
-		$view = new \OC\Files\View('/');
 		$privateKeySet = $session->isPrivateKeySet();
 
 		// did we tried to initialize the keys for this session?

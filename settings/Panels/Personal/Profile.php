@@ -32,7 +32,7 @@ use OCP\L10N\IFactory;
 
 class Profile implements ISettings {
 
-    /* @var Config */
+    /* @var IConfig */
     protected $config;
 
     /* @var IGroupManager */
